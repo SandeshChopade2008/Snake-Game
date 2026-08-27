@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Snake Game</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="page">
+        <div class="game-shell">
+
+            <header class="game-header">
+                <h1 class="title">Snake</h1>
+
+                <div class="scoreboard" aria-live="polite">
+                    <div class="score-box">
+                        <span class="score-label">Score</span>
+                        <span class="score-value" id="current-score">0</span>
+                    </div>
+                    <div class="score-box">
+                        <span class="score-label">Best</span>
+                        <span class="score-value" id="best-score">0</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="board-wrapper">
+
+                <!-- The actual grid the snake moves on -->
+                <div id="game-board" class="game-board" role="img" aria-label="Snake game board"></div>
+
+                <!-- Shown before the very first game starts -->
+                <div id="start-overlay" class="overlay">
+                    <h2>Ready to play?</h2>
+                    <p>
+                        Guide the snake to the food. Avoid the walls and your own tail.
+                        Use the Arrow keys or W A S D to move.
+                    </p>
+                    <button id="start-button" class="primary-button">Start Game</button>
+                </div>
+
+                <!-- Shown when the snake dies -->
+                <div id="game-over-overlay" class="overlay hidden">
+                    <h2>Game Over</h2>
+                    <p>Final score: <span id="final-score">0</span></p>
+                    <button id="restart-button" class="primary-button">Play Again</button>
+                </div>
+
+                <!-- Shown while the game is paused -->
+                <div id="pause-overlay" class="overlay hidden">
+                    <h2>Paused</h2>
+                    <p>Press Space or click Resume to keep playing.</p>
+                </div>
+
+            </div>
+
+            <div class="controls">
+                <button id="pause-button" class="secondary-button" disabled>Pause</button>
+            </div>
+
+            <p class="hint">Controls: Arrow keys or W A S D to move &middot; Space to pause</p>
+
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

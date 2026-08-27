@@ -1,0 +1,315 @@
+/* =========================================================
+   DESIGN TOKENS
+   All colors, fonts and sizes live here so the rest of the
+   file just refers to them by name.
+   ========================================================= */
+:root {
+    /* Colors - a dark "terrarium at night" palette */
+    --color-bg-top: #16302a;
+    --color-bg-bottom: #0b1a15;
+    --color-panel: #16302aee;
+    --color-board: #0d1f19;
+    --color-grid-line: rgba(233, 245, 233, 0.05);
+    --color-border: #24493d;
+
+    --color-text: #eef4ee;
+    --color-text-dim: #9db3a8;
+
+    --color-snake-head: #b8f2c9;
+    --color-snake-body-light: #59b381;
+    --color-snake-body-dark: #2f7d52;
+
+    --color-food: #f2a154;
+    --color-food-glow: rgba(242, 161, 84, 0.55);
+
+    --color-danger: #e2604f;
+
+    /* Typography */
+    --font-display: 'Trebuchet MS', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-mono: 'Courier New', ui-monospace, Consolas, monospace;
+
+    /* Shape */
+    --radius-lg: 22px;
+    --radius-md: 12px;
+    --radius-sm: 6px;
+}
+
+/* =========================================================
+   BASE / RESET
+   ========================================================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+
+    font-family: var(--font-display);
+    color: var(--color-text);
+
+    background:
+        radial-gradient(circle at 30% 15%, #1d4536 0%, transparent 55%),
+        linear-gradient(180deg, var(--color-bg-top) 0%, var(--color-bg-bottom) 100%);
+    background-attachment: fixed;
+}
+
+/* =========================================================
+   LAYOUT SHELL
+   ========================================================= */
+.game-shell {
+    width: 100%;
+    max-width: 480px;
+
+    background: var(--color-panel);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+
+    box-shadow: 0 30px 60px -25px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+}
+
+.game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.title {
+    margin: 0;
+    font-size: clamp(24px, 6vw, 32px);
+    letter-spacing: 1px;
+}
+
+/* small leaf/snake accent before the title, drawn with CSS only */
+.title::before {
+    content: "";
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 10px;
+    border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%;
+    background: linear-gradient(135deg, var(--color-snake-head), var(--color-snake-body-dark));
+    vertical-align: middle;
+}
+
+/* =========================================================
+   SCOREBOARD
+   ========================================================= */
+.scoreboard {
+    display: flex;
+    gap: 10px;
+}
+
+.score-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background: var(--color-board);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 6px 14px;
+    min-width: 64px;
+}
+
+.score-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-text-dim);
+}
+
+.score-value {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* =========================================================
+   GAME BOARD
+   ========================================================= */
+.board-wrapper {
+    position: relative;
+
+    /* Responsive square: never bigger than 440px, never bigger
+       than the available viewport width either. */
+    width: min(440px, 82vw);
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+}
+
+.game-board {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    background:
+        linear-gradient(var(--color-grid-line) 1px, transparent 1px) 0 0 / calc(100% / 20) calc(100% / 20),
+        linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px) 0 0 / calc(100% / 20) calc(100% / 20),
+        var(--color-board);
+
+    border: 3px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+/* Snake segments and food are positioned with percentages so the
+   whole board resizes without any JavaScript math. */
+.cell {
+    position: absolute;
+    box-sizing: border-box;
+}
+
+.snake-segment {
+    background: var(--color-snake-body-light);
+    border: 2px solid var(--color-bg-bottom);
+    border-radius: 5px;
+}
+
+.snake-head {
+    background: var(--color-snake-head);
+    border-radius: 7px;
+    box-shadow: 0 0 10px rgba(184, 242, 201, 0.6);
+    z-index: 2;
+}
+
+.food {
+    background: radial-gradient(circle at 35% 30%, #ffd9a8, var(--color-food) 70%);
+    border-radius: 50%;
+    box-shadow: 0 0 14px var(--color-food-glow);
+    animation: pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(0.88); }
+    50% { transform: scale(1); }
+}
+
+/* =========================================================
+   OVERLAYS (start screen / pause / game over)
+   ========================================================= */
+.overlay {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 12px;
+    padding: 20px;
+
+    background: rgba(13, 31, 25, 0.92);
+    border-radius: var(--radius-md);
+}
+
+.overlay.hidden {
+    display: none;
+}
+
+.overlay h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.overlay p {
+    margin: 0;
+    color: var(--color-text-dim);
+    max-width: 30ch;
+}
+
+#final-score {
+    color: var(--color-food);
+    font-family: var(--font-mono);
+    font-weight: bold;
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+.primary-button,
+.secondary-button {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+
+    padding: 10px 26px;
+    border-radius: 999px;
+    border: none;
+
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.primary-button {
+    background: linear-gradient(135deg, var(--color-snake-head), var(--color-snake-body-dark));
+    color: #0b1a15;
+}
+
+.primary-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -8px rgba(89, 179, 129, 0.6);
+}
+
+.secondary-button {
+    background: transparent;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+}
+
+.secondary-button:hover:not(:disabled) {
+    border-color: var(--color-snake-body-light);
+    color: var(--color-snake-head);
+}
+
+.secondary-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.primary-button:focus-visible,
+.secondary-button:focus-visible {
+    outline: 2px solid var(--color-snake-head);
+    outline-offset: 2px;
+}
+
+/* =========================================================
+   CONTROLS / HINT TEXT
+   ========================================================= */
+.controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+}
+
+.hint {
+    text-align: center;
+    color: var(--color-text-dim);
+    font-size: 13px;
+    margin: 12px 0 0;
+}
+
+/* =========================================================
+   SMALL SCREENS
+   ========================================================= */
+@media (max-width: 420px) {
+    .game-shell {
+        padding: 16px;
+    }
+
+    .game-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
